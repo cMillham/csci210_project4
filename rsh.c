@@ -26,24 +26,24 @@ void terminate(int sig) {
         exit(0);
 }
 
-client = open("clientFIFO", O_RDONLY);
- server = open("serverFIFO", O_WRONLY);
+//int client = open(uName, O_WRONLY);
 
 void sendmsg (char *user, char *target, char *msg) {
 	// TODO:
 	// Send a request to the server to send the message (msg) to the target user (target)
 	// by creating the message structure and writing it to server's FIFO
+	int server = open("serverFIFO", O_WRONLY);
 	struct message message;
-	strcpy(message.source,*user);
-	strcpy(message.target,*target);
-	strcpy(message.msg,*msg);
+	strcpy(message.source,user);
+	strcpy(message.target,target);
+	strcpy(message.msg,msg);
 
 	write(server,&message,sizeof(struct message));
 	close(server);
 
 
 }
-clientR= open("uName", O_RDONLY);
+
 void* messageListener(void *arg) {
 	// TODO:
 	// Read user's own FIFO in an infinite loop for incoming messages
@@ -52,6 +52,7 @@ void* messageListener(void *arg) {
 	// following format
 	// Incoming message from [source]: [message]
 	// put an end of line at the end of the message
+	int clientR = open(uName, O_RDONLY);
 	struct message msg;
 	while(1) {
 		if(read(clientR,&msg,sizeof(struct message))!= sizeof(struct message)){
@@ -134,17 +135,17 @@ int main(int argc, char **argv) {
 		// if no message is specified, you should print the followingA
  		// printf("sendmsg: you have to enter a message\n");
 		char target_user[256];
-		char msg[256];
-		strcpy(target_user,strtok(line2[strlen(cmd)+1], " "));
-		strcpy(msg, strtok(line2[strlen(cmd)+strlen(target_user)+1], "\0"));
-		sendmsg(client,target_user,msg);
-		if(target_user == "\0"){
-			printf("sendmsg: you have to specify target user\n");
+		char* msg = malloc(sizeof(char)*256);
+		strcpy(msg, line2);
+		if(strlen(msg) <= 8){
+			printf("sendmsg: you have to specify target user\n");}
+		else {msg = msg+8;
+		//printf("hello\n");
+		strncpy(target_user, msg, 5);
+		if(strlen(msg) <= 6){printf("sendmsg: you have to enter a message\n");}
+		else{msg = msg+6;
+		sendmsg(uName,target_user,msg);}
 		}
-		if(msg == "\0"){
-			printf("sendmsg: you have to enter a message\n");
-		}
-
 
 
 		continue;

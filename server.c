@@ -45,7 +45,7 @@ int main() {
 		// open target FIFO and write the whole message struct to the target FIFO
 		// close target FIFO after writing the message
 		target=open(req.target,O_WRONLY);
-		write(target,&msg,sizeof(struct message));
+		write(target,&req,sizeof(struct message));
 		close(target);
 
 
